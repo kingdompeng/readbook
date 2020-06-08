@@ -2,7 +2,7 @@
 Python最基础的数据结构：元组、列表、字典和集合
 ## 3.1 数据结构和列表
 ### 元组：固定长度，不可改变的Python序列对象
-+ 元组中存储的对象可能是可变对象
++ 元组中存储的对象可能是可变对象 
   + 一旦创建了元组，元组中的对象就不能修改了
   + 如果元组中的某个对象是可变的，比如列表，可以在原位进行修改
   + 元组乘以一个整数，像列表一样，会将几个元组的复制串联起来，对象本身并没有复制，只是引用了它
@@ -132,3 +132,127 @@ a & b
 常用的集合方法
 ![avatar](3-1-1.png)
 + 所有逻辑集合操作都有另外原地实现方法，可以直接用结果替代集合的内容
++ 与字典类似，集合元素通常都是不可变的。要获得类似列表的元素，必须转换成元组
+### 列表、集合和字典推导式
+形式如下：
+**[expr	for	val	in	collection	if	condition]**
+#### 嵌套列表推导式
+```python
+some_tuples=[(1,2,3),(4,5,6),(7,8,9)]
+flattened = [x for tup in some_tuples for x in tup]
+flattened
+>>> [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+## 3.2 函数
+函数参数的主要限制在于：关键字参数必须位于未知参数之后，可以任何顺序制定关键字参数。
+### 命名空间、作用域和局部函数
+函数可以访问两种不同作用域中的变量：全局（global）和局部（local）
++ 任何在函数中赋值的变量默认都是被分配到局部命名空间中的
+  + 局部命名空间是在函数被调用时创建的
+  + 函数执行完毕，局部命名空间就会被摧毁
+### 返回多个值
+返回多个值其实只返回一个对象，即一个元组
+### 函数也是对象
+```python
+states = ['    Alabama  ', 'Gerorgia!', 'Georgia   ', '   Georgia?', 'south    carolina##', 'West virginia']
+# 正则表达式
+import re
+def clean_strings(strings)
+    result = []
+    for value in strings:
+        value = value.strip()
+        value = re.sub('[!#?]', '', value)
+        value = value.title()
+        result.append(value)
+    return result
+# 将需要在一组给定字符串上执行的所有运算做成一个列表
+def remove_punctuation(value):
+    return re.sub('[!#?]', '', value)
+
+clean_ops = [str.strip, remove_punctuation, str.title]
+
+def clean_strings(strings, ops):
+    result = []
+    for value in strings:
+        for function in ops:
+            value = function(value)
+        result.append(value)
+    return result
+# 将函数用作其他函数的参数，如内置的map函数
+for x in map(remove_punctuation, states):
+    print(x)
+```
+### 匿名（lambda）函数
+```python
+strings = ['foo', 'card', 'bar', 'aaaa', 'abab']
+strings.sort(key=lambda x: len(set(list(x))))
+strings
+>>> ['aaaa', 'foo', 'abab', 'bar', 'card']
+```
+### 柯里化：部分参数应用
+柯里化是一个有趣的计算机科学术语，指的是通过“部分参数应用”从现有函数派生出新函数的技术。
+```python
+def add_numbers(x, y):
+    return x + y
+
+add_five = lambda y: add_numbers(5, y)
+
+# add_numbers的第二个参数称为“柯里化的”
+# 使用内置的functools模块的partial将此过程简化
+from functools import partial
+add_five = partial(add_numbers, 5)
+```
+### 生成器
+生成器是构造新的可迭代对象的一种简单方式。一般的函数执行之后只会返回单个值，而生成器则是以延迟的方式返回一个值序列，即每返回一个值之后暂停，直到下一个值被请求时再继续。
+要创建一个生成器，只需将函数中的return替换为yield即可
+```python
+def squares(n=10):
+    print('Generating squares from 1 to {0}'.format(n))
+    for i in range(1, n+1):
+        yield i**2
+```
+调用该生成器时，没有任何代码会被立即执行
+直到从该生成器中请求元素时，才会开始执行其代码
+#### 生成器表达式
+```python
+def _make_gen():
+    for x in range(100):
+        yield x**2
+gen = _make_gen
+# 简化
+gen = (x**2 for x in range(100))
+
+# 生成器表达式也可以取代列表推导式，作为函数参数
+sum(x**2 for x in range(100))
+>>> 328350
+dict((i, i**2) for i in range(5))
+>>> {0: 0， 1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+```
+### itertools模块
+![avatar](3-2-1.png)
+### 错误和异常处理
+```python
+f = open(path, 'w')
+
+try:
+    write_to_file(f)
+except:
+    print('Failed')
+else:
+    print('Succeeded')
+finally:
+    f.close()
+```
+## 3.3 文件和操作系统
+打开文件：内置的open函数，默认情况下，文件是以只读的模式（'r'）打开
+打开文件，结束文件操作后，一定要用close关闭文件，返回操作系统资源
+用with语句更容易的清理打开的文件
+```python
+with open(path) as f:
+    lines = [x.rstrip() for x in f]
+```
+所有的文件读/写模式
+![avatar](3-3-1.png)
+常用的文件方法
+![avatar](3-3-2.png)
+### 文件的字节和unicode
